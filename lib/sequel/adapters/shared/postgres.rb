@@ -310,7 +310,7 @@ module Sequel
         end
 
         h = {}
-        fklod_map = FOREIGN_KEY_LIST_ON_DELETE_MAP 
+        fklod_map = FOREIGN_KEY_LIST_ON_DELETE_MAP
         ds.each do |row|
           if r = h[row[:name]]
             r[:columns] << m.call(row[:column])
@@ -400,7 +400,7 @@ module Sequel
       end
 
       # Refresh the materialized view with the given name.
-      # 
+      #
       #   DB.refresh_view(:items_view)
       #   # REFRESH MATERIALIZED VIEW items_view
       #   DB.refresh_view(:items_view, :concurrently=>true)
@@ -408,7 +408,7 @@ module Sequel
       def refresh_view(name, opts=OPTS)
         run "REFRESH MATERIALIZED VIEW#{' CONCURRENTLY' if opts[:concurrently]} #{quote_schema_table(name)}"
       end
-      
+
       # Reset the database's conversion procs, requires a server query if there
       # any named types.
       def reset_conversion_procs
@@ -569,7 +569,7 @@ module Sequel
       def alter_table_generator_class
         Postgres::AlterTableGenerator
       end
-    
+
       # Handle :using option for set_column_type op, and the :validate_constraint op.
       def alter_table_op_sql(table, op)
         case op[:op]
@@ -606,7 +606,7 @@ module Sequel
           log_connection_execute(conn, "SET LOCAL synchronous_commit = #{sync}")
         end
       end
-      
+
       # Set the READ ONLY transaction setting per savepoint, as PostgreSQL supports that.
       def begin_savepoint(conn, opts)
         super
@@ -694,7 +694,7 @@ module Sequel
         nil
       end
 
-      # Convert the hash of named conversion procs into a hash a oid conversion procs. 
+      # Convert the hash of named conversion procs into a hash a oid conversion procs.
       def convert_named_procs_to_procs(named_procs)
         h = {}
         from(:pg_type).where(:typtype=>'b', :typname=>named_procs.keys.map{|t| t.to_s}).select_map([:oid, :typname]).each do |oid, name|
@@ -858,7 +858,7 @@ module Sequel
       def create_table_generator_class
         Postgres::CreateTableGenerator
       end
-    
+
       # SQL for creating a database trigger.
       def create_trigger_sql(table, name, function, opts=OPTS)
         events = opts[:events] ? Array(opts[:events]) : [:insert, :update, :delete]
@@ -884,7 +884,7 @@ module Sequel
       def drop_function_sql(name, opts=OPTS)
         "DROP FUNCTION#{' IF EXISTS' if opts[:if_exists]} #{name}#{sql_function_args(opts[:args])}#{' CASCADE' if opts[:cascade]}"
       end
-      
+
       # Support :if_exists, :cascade, and :concurrently options.
       def drop_index_sql(table, op)
         sch, _ = schema_and_table(table)
@@ -1008,7 +1008,7 @@ module Sequel
         if sch
           expr = Sequel.qualify(sch, table)
         end
-        
+
         expr = if ds = opts[:dataset]
           ds.literal(expr)
         else
@@ -1103,7 +1103,7 @@ module Sequel
           log_connection_execute(conn, sql)
         end
       end
-     
+
       # Turns an array of argument specifiers into an SQL fragment used for function arguments.  See create_function_sql.
       def sql_function_args(args)
         "(#{Array(args).map{|a| Array(a).reverse.join(' ')}.join(', ')})"
@@ -1329,7 +1329,8 @@ module Sequel
       # inserting a query if disable_insert_returning is used.
       def insert_select(*values)
         return unless supports_insert_select?
-        with_sql_first(insert_select_sql(*values))
+        ds = @opts[:server] ? self : server(:default)
+        ds.with_sql_first(insert_select_sql(*values))
       end
 
       # The SQL to use for an insert_select, adds a RETURNING clause to the insert
@@ -1388,7 +1389,7 @@ module Sequel
       def supports_lateral_subqueries?
         server_version >= 90300
       end
-      
+
       # PostgreSQL supports modifying joined datasets
       def supports_modifying_joins?
         true
@@ -1519,7 +1520,7 @@ module Sequel
       def literal_false
         BOOL_FALSE
       end
-      
+
       # PostgreSQL quotes NaN and Infinity.
       def literal_float(value)
         if value.finite?
@@ -1531,7 +1532,7 @@ module Sequel
         else
           "'-Infinity'"
         end
-      end 
+      end
 
       # Assume that SQL standard quoting is on, per Sequel's defaults
       def literal_string_append(sql, v)
