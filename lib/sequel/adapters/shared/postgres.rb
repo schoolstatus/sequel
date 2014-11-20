@@ -1337,7 +1337,7 @@ module Sequel
       # unless the RETURNING clause is already present.
       def insert_select_sql(*values)
         ds = opts[:returning] ? self : returning
-        ds.insert_sql(*values){|r| return r}
+        ds.insert_sql(*values)
       end
 
       # Locks all tables in the dataset's FROM clause (but not in JOINs) with
